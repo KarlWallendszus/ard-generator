@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Runs analyses as defined in the metadata datasets.
 * @author Karl Wallendszus
 * @created 2023-03-21
@@ -842,7 +842,7 @@ run;
 
 * Initialize ARD;
 data ard.analysisresults;
-	set metadata.analysisresultstemplate;
+	set ard.analysisresultstemplate;
 run;
 
 * Direct log output to a file;
@@ -850,15 +850,15 @@ proc printto log="&logdir.\run_analyses_&progdtc_name..log";
 run; 
 
 * Run analyses;
-%run_planned_analyses(mdlib=metadata, datalib=adam, ardlib=ard);
+%run_planned_analyses(mdlib=jsonmd, datalib=adam, ardlib=ard);
 /*
-%run_analysis(mdlib=metadata, datalib=adam, ardlib=ard, 
+%run_analysis(mdlib=jsonmd, datalib=adam, ardlib=ard, 
 	analid=An01_05_SAF_Summ_ByTrt, debugfl=Y);
-%run_analysis(mdlib=metadata, datalib=adam, ardlib=ard, 
+%run_analysis(mdlib=jsonmd, datalib=adam, ardlib=ard, 
 	analid=An03_02_AgeGrp_Summ_ByTrt, debugfl=Y);
-%run_analysis(mdlib=metadata, datalib=adam, ardlib=ard, 
+%run_analysis(mdlib=jsonmd, datalib=adam, ardlib=ard, 
 	analid=An03_05_Race_Summ_ByTrt, debugfl=Y);
-%run_analysis(mdlib=metadata, datalib=adam, ardlib=ard, 
+%run_analysis(mdlib=jsonmd, datalib=adam, ardlib=ard, 
 	analid=An07_09_Soc_Summ_ByTrt, debugfl=Y);
 */
 
