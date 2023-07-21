@@ -1,0 +1,6 @@
+setbase.sas
+sasbaseard.sas
+*.sas7bdat
+scratch.sas
+*.log
+version.txt
