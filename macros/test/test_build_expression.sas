@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Tests the build_expression macro.
 * @author Karl Wallendszus
 * @created 2023-03-21
@@ -71,6 +71,8 @@ run;
 %build_expression(dsin=testdata.datasubsets, idvar=id, id=Dss11_TEAE_PlacLow,
 	datalib=testdata, dsout=testout.expressions);
 %build_expression(dsin=testdata.datasubsets, idvar=id, id=Dss12_TEAE_PlacHigh,
+	datalib=testdata, dsout=testout.expressions);
+%build_expression(dsin=testdata.analysissets, idvar=id, id=AnalysisSet_03_EFF,
 	datalib=testdata, dsout=testout.expressions);
 
 * Direct log output back to the log window;

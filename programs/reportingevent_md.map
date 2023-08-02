@@ -1013,6 +1013,12 @@
           "CURRENT_LENGTH": 33
         },
         {
+          "NAME": "description",
+          "TYPE": "CHARACTER",
+          "PATH": "/root/analyses/description",
+          "CURRENT_LENGTH": 200
+        },
+        {
           "NAME": "methodId",
           "TYPE": "CHARACTER",
           "PATH": "/root/analyses/methodId",

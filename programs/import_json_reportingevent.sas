@@ -874,7 +874,7 @@ run;
 		from _tmp_referencedAnalysisOperation;
 
 		create table jsonmd.Analyses as
-		select a.id, a.version, a.name, b.categoryIds,
+		select a.id, a.version, a.name, a.description, b.categoryIds,
 	           coalescec(c.controlledTerm,c.sponsorTermId) as reason,
 	           coalescec(d.controlledTerm,d.sponsorTermId) as purpose,
 			   a.analysisSetId,
@@ -909,6 +909,18 @@ run;
 		left join (select * from _tmp_referencedAnalysisOperation where order = &i) as r&i
 		on a.ordinal_analyses = r&i..ordinal_analyses
 		%end;;
+
+		create table jsonmd.AnalysesOrdGroupings as
+			select a.id, g.*
+				from in.analyses a 
+					left join in.analyses_orderedGroupings g
+					on a.ordinal_analyses = g.ordinal_analyses;
+
+		create table jsonmd.AnalysesRefOperations as
+			select a.id, r.*
+				from in.analyses a 
+					join _tmp_referencedAnalysisOperation r
+					on a.ordinal_analyses = r.ordinal_analyses;
 
 	quit;
 
@@ -972,7 +984,11 @@ run;
 		from _tmp_operations_referencedOp;
 
 		create table jsonmd.AnalysisMethods as
-		select a.id, a.name, a.label, a.description,
+		select a.id, a.name, a.label, a.description
+		from in.methods as a;
+
+		create table jsonmd.MethodOperations as
+		select a.id, 
 		       b.id as operation_id,
 			   b.name as operation_name,
 			   b.order as operation_order,
@@ -998,6 +1014,22 @@ run;
 		on b.ordinal_operations = r&i..ordinal_operations
 	    %end;;
 
+		create table jsonmd.OperationsRefOp as
+		select b.id as operation_id,
+				r.id as refOpRel_id,
+				r.referencedOperationRole as refOpRel_refOperationRole,
+				r.operationId as refOpRel_operationId,
+				r.description as refOpRel_description
+			from _tmp_methods_operations as b
+				join (select ra.ordinal_operations, ra.ordinal_referencedOperationRelat, 
+							ra.id, 
+							coalescec(rb.controlledTerm, rb.sponsorTermId) as referencedOperationRole,
+							ra.operationId, ra.description
+						from _tmp_operations_referencedOp as ra
+							inner join in.refere_referencedOperationRole as rb
+							on ra.ordinal_referencedOperationRelat = rb.ordinal_referencedOperationRelat
+					) as r
+				on b.ordinal_operations = r.ordinal_operations;
 	quit;
 
 %mend get_methods;
