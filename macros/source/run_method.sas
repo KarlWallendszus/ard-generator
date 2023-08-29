@@ -13,11 +13,12 @@
 * @param datasubsetid	Data subset ID.
 * @param analds			Analysis dataset.
 * @param analvar		Analysis variable.
+* @param groupingids	List of pipe-delimited data grouping IDs.
 * @param debugfl		Debug flag (Y/N).
 ********************************************************************************
 */
 %macro run_method ( mdlib=, datalib=, ardlib=, methid=, analid=, 
-	analsetid=, datasubsetid=, analds=, analvar=, debugfl=N );
+	analsetid=, datasubsetid=, analds=, analvar=, groupingids=, debugfl=N );
 
 	%* Get operation details;
 	%local methid methname methlabel methdescr 
@@ -54,67 +55,11 @@
 		%put NOTE:   Operation &&opord&iop.: &&opid&iop.;
 	%end;
 
-	/*	
-	%* Get analysis set;
-	%define_analset(mdlib=&mdlib., datalib=&datalib., analsetid=&analsetid.);
-
-	* Build list of groupings;
-	%local groupings;
-	%let groupings = &grid1.;
-	%if &grid2. ne %str() %then %let groupings = &groupings.|&grid2.;;
-	%if &grid3. ne %str() %then %let groupings = &groupings.|&grid3.;;
-
-	%* Create a work dataset containing the relevant records and variables;
-	%create_adwork(mdlib=&mdlib., datalib=&datalib., dsdd=&analds., 
-		groupings=&groupings.);
-
-	%* Get the parameters required for the analysis;
-	%local grpvars grpvarsx gr1ids gr1labels gr1conds 
-		gr2ids gr2labels gr2conds 
-		gr3ids gr3labels gr3conds
-		datadriven opids;
-	%let gr1ids = %str();
-	%let gr1conds = %str();
-	%let gr2ids = %str();
-	%let gr2conds = %str();
-	%let gr3ids = %str();
-	%let gr3conds = %str();
-	proc sql;
-		select max(dataDriven) into :datadriven
-			from &mdlib..analysisgroupings
-			where id in ("&grid1.", "&grid2.", "&grid3.");
-		select e.id, e.label, e.expression 
-				into :gr1ids separated by '|', 
-					:gr1labels separated by '|',
-					:gr1conds separated by '|'
-			from &mdlib..analysisgroupings g join &mdlib..expressions e
-				on g.group_id = e.id
-			where g.id = "&grid1.";
-		%if &grid2. ne %str() %then %do;
-			select e.id, e.label, e.expression 
-					into :gr2ids separated by '|', 
-						:gr2labels separated by '|',
-						:gr2conds separated by '|'
-				from &mdlib..analysisgroupings g join &mdlib..expressions e
-					on g.group_id = e.id
-				where g.id = "&grid2.";
-		%end;
-		%if &grid3. ne %str() %then %do;
-			select e.id, e.label, e.expression 
-					into :gr3ids separated by '|', 
-						:gr3labels separated by '|',
-						:gr3conds separated by '|'
-				from &mdlib..analysisgroupings g join &mdlib..expressions e
-					on g.group_id = e.id
-				where g.id = "&grid3.";
-		%end;
-		select operation_id into :opids separated by '|'
-			from &mdlib..analysismethods
-			where id = "&methid."
-			order by operation_order;
-	quit;
-	%let grpvarsx = %sysfunc(tranwrd(&grpvars.,%str( ),*));
-	*/
+	%* Build a work dataset including all relevant variables;
+	%build_work_dataset(mdlib=&mdlib., datalib=&datalib., analds=&analds., 
+		analvar=&analvar., analsetid=&analsetid., 
+		datasubsetid=&datasubsetid., groupingids=&groupingids., 
+		debugfl=&debugfl.);
 
 	%* Loop through analysis operations;
 	%do iop = 1 %to &noperations.;

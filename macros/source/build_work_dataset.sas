@@ -7,9 +7,6 @@
 *
 * @param mdlib			Library containing metadata datasets.
 * @param datalib		Library containing data to be analysed.
-* @param ardlib			Library containing analysis results datasets.
-* @param methid			Method ID.
-* @param analid			Analysis ID.
 * @param analds			Analysis dataset.
 * @param analvar		Analysis variable.
 * @param analsetid		Analysis set ID.
@@ -18,27 +15,27 @@
 * @param debugfl		Debug flag (Y/N).
 ********************************************************************************
 */
-%macro build_work_dataset ( mdlib=, datalib=, ardlib=, methid=, analid=, 
-	analds=, analvar=, analsetid=, datasubsetid=, groupingids=, debugfl=N );
+%macro build_work_dataset ( mdlib=, datalib=, analds=, analvar=, analsetid=, 
+	datasubsetid=, groupingids=, debugfl=N );
 
-	* Create a dataset to hold a list of the variables needed in the working 
+	%* Define the analysis set;
+	%define_analset(mdlib=&mdlib., datalib=&datalib., analsetid=&analsetid.);
+
+	%* Create a dataset to hold a list of the variables needed in the working 
 	dataset;
 	data reqvars;
 		length dataset variable $8;
 		stop;
 	run;
 
-	* Add USUBJID and the analysis variable;
+	%* Add the analysis variable;
 	proc sql;
-		insert into reqvars
-			( dataset, variable )
-			values ("&analds.", "USUBJID");
 		insert into reqvars
 			( dataset, variable )
 			values ("&analds.", "&analvar");
 	quit;
 
-	* Add variables used in the data subset (if any);
+	%* Add variables used in the data subset (if any);
 	proc sql;
 		insert into reqvars
 			( dataset, variable )
@@ -47,10 +44,7 @@
 				where id = "&datasubsetid." and condition_variable is not null;
 	quit;
 
-	%* Define the analysis set;
-	%define_analset(mdlib=&mdlib., datalib=&datalib., analsetid=&analsetid.);
-
-	* Add variables used in the data groupings (if any);
+	%* Add variables used in the data groupings (if any);
 	%local ig groupingid;
 	%let ig = 1;
 	%do %while(%scan(&groupingids., &ig., '|') ne );
@@ -70,79 +64,90 @@
 		%let ig = %eval(&ig.+1);
 	%end;
 
-	* Create a list of distinct variables;
+	%* Assume the datasets are joied by USUBJID so add this for each dataset; 
+	proc sql;
+		create table reqvarstmp
+			as select distinct upper(dataset) as dataset, 'USUBJID' as variable
+				from reqvars
+				where variable ^= 'USUBJID';
+		insert into reqvars
+			( dataset, variable )
+			select dataset, variable
+				from reqvarstmp;
+		drop table reqvarstmp;
+	quit;
+
+	%* Create lists of distinct datasets amd variables;
+	%local dslist nds;
 	proc sql;
 		create table reqvars1
 			as select distinct upper(dataset) as dataset, 
 					upper(variable) as variable
 				from reqvars;
+		select count(distinct dataset) into :nds
+			from reqvars1;
+		select distinct dataset into :dslist separated by ' '
+			from reqvars1;
 	quit;
 
-	/*
+	%* Now build a dataset containing all these variables for subjects in the analysis set;
 
-	* Build list of groupings;
-	%local groupings;
-	%let groupings = &grid1.;
-	%if &grid2. ne %str() %then %let groupings = &groupings.|&grid2.;;
-	%if &grid3. ne %str() %then %let groupings = &groupings.|&grid3.;;
+	%* Loop through datasets;
+	%local ids iv;
+	%do ids = 1 %to &nds.;
+		%local ds&ids. ds&ids.vars;
+		%let ds&ids. = %scan(&dslist., &ids., ' ');
+		%put NOTE: Merging dataset &ids.: &&ds&ids.;
 
-	%* Create a work dataset containing the relevant records and variables;
-	%create_adwork(mdlib=&mdlib., datalib=&datalib., dsdd=&analds., 
-		groupings=&groupings.);
+		%* Get list of required variables in this dataset;
+		proc sql;
+			select variable into :ds&ids.vars separated by ' '
+				from reqvars1
+				where dataset = "&&ds&ids.";
+		quit;
+		%put NOTE: Variables in &&ds&ids.: &&ds&ids.vars.;
 
-	%* Get the parameters required for the analysis;
-	%local grpvars grpvarsx gr1ids gr1labels gr1conds 
-		gr2ids gr2labels gr2conds 
-		gr3ids gr3labels gr3conds
-		datadriven opids;
-	%let gr1ids = %str();
-	%let gr1conds = %str();
-	%let gr2ids = %str();
-	%let gr2conds = %str();
-	%let gr3ids = %str();
-	%let gr3conds = %str();
-	proc sql;
-		select max(dataDriven) into :datadriven
-			from &mdlib..analysisgroupings
-			where id in ("&grid1.", "&grid2.", "&grid3.");
-		select e.id, e.label, e.expression 
-				into :gr1ids separated by '|', 
-					:gr1labels separated by '|',
-					:gr1conds separated by '|'
-			from &mdlib..analysisgroupings g join &mdlib..expressions e
-				on g.group_id = e.id
-			where g.id = "&grid1.";
-		%if &grid2. ne %str() %then %do;
-			select e.id, e.label, e.expression 
-					into :gr2ids separated by '|', 
-						:gr2labels separated by '|',
-						:gr2conds separated by '|'
-				from &mdlib..analysisgroupings g join &mdlib..expressions e
-					on g.group_id = e.id
-				where g.id = "&grid2.";
+		%* Merge this dataset with the analysis set;
+		%if &ids. = 1 %then %do;
+			data workds;
+				set analset;
+			run;
 		%end;
-		%if &grid3. ne %str() %then %do;
-			select e.id, e.label, e.expression 
-					into :gr3ids separated by '|', 
-						:gr3labels separated by '|',
-						:gr3conds separated by '|'
-				from &mdlib..analysisgroupings g join &mdlib..expressions e
-					on g.group_id = e.id
-				where g.id = "&grid3.";
-		%end;
-		select operation_id into :opids separated by '|'
-			from &mdlib..analysismethods
-			where id = "&methid."
-			order by operation_order;
-	quit;
-	%let grpvarsx = %sysfunc(tranwrd(&grpvars.,%str( ),*));
+		data workds;
+			merge workds ( in = w )
+				&datalib..&&ds&ids. ( in = d keep = &&ds&ids.vars. );
+			by usubjid;
+			if w and d;
+		run;
+	%end;
 
-	*/
+	%* Apply data subsets;
+	%if &datasubsetid. ne %str() %then %do;
+		proc sql;
+			select expression into :dssexpr
+				from &datalib..expressions
+				where id = "&datasubsetid.";
+		quit;
+		%let dssexpr = &dssexpr.;
+		data workds;
+			set workds ( where = ( &dssexpr. ) );
+		run;
+	%end;
+
+	%* Standardise groupings;
+	%if "&groupingids." ne %str() %then %do;
+		%standardize_groupings(dsgrp=testdata.analysisgroupings, 
+			dsexpr=testdata.expressions, dsin=workds, 
+			ids=&groupingids., dsout=workds_g, debugfl=&debugfl.);
+		data workds;
+			set workds_g;
+		run;
+	%end;
 
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;
 		proc datasets library=work;
-			delete analset reqvars;
+			delete analset reqvars reqvars1 workds_g;
 		run;
 		quit;
 	%end;

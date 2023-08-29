@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 * Tests the build_work_dataset macro.
 * @author Karl Wallendszus
 * @created 2023-08-02
@@ -40,27 +40,28 @@ proc printto log="&logdir.\test_build_work_dataset_&progdtc_name..log";
 run; 
 
 * Test 1;
-%build_work_dataset(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	analid=An01_05_SAF_Summ_ByTrt, methid=Mth01_CatVar_Count_ByGrp, 
-	analds=adsl, analvar=usubjid, analsetid=AnalysisSet_02_SAF, 
-	groupingids=AnlsGrouping_01_Trt, debugfl=Y);
+%build_work_dataset(mdlib=testdata, datalib=testdata, analds=adsl, 
+	analvar=usubjid, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt);
+data testout.workds1;
+	set workds;
+run;
 
 * Test 2;
-%build_work_dataset(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	analid=An07_09_Soc_Summ_ByTrt, methid=Mth01_CatVar_Summ_ByGrp, 
-	analds=adae, analvar=usubjid, 
-	analsetid=AnalysisSet_02_SAF, datasubsetid=Dss01_TEAE, 
-	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc, debugfl=Y);
+%build_work_dataset(mdlib=testdata, datalib=testdata, analds=adae, 
+	analvar=usubjid, analsetid=AnalysisSet_02_SAF, datasubsetid=Dss01_TEAE, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc);
+data testout.workds2;
+	set workds;
+run;
 
 * Direct log output back to the log window;
 proc printto;
 run; 
 
-/*
 * Output datasets as JSON;
 proc json out = "&sasbaseard.\macros\test\output\test_build_work_dataset_&progdtc_name..json" pretty;
-	export testout.analset1;
-	export testout.analset2;
-	export testout.analset3;
+	export testout.workds1;
+	export testout.workds2;
 run;
-*/
+

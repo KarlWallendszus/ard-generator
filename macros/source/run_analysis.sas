@@ -88,7 +88,8 @@
 	* Run the analysis method;
 	%run_method(mdlib=&mdlib., datalib=&datalib., ardlib=&ardlib., 
 		methid=&methid., analid=&analid., analsetid=&analsetid., 
-		datasubsetid=&datasubsetid., analds=&analds., analvar=&analvar.);
+		datasubsetid=&datasubsetid., analds=&analds., analvar=&analvar.
+		groupingids=&groupingids., debugfl=&debugfl.);
 
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;
