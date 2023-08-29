@@ -37,7 +37,7 @@
 			order by 1;
 	quit;
 
-	* Extract operation details into separate macro variables;
+	%* Extract operation details into separate macro variables;
 	%local iop;
 	%do iop = 1 %to &noperations.;
 		%local opord&iop. opid&iop.;
@@ -63,13 +63,6 @@
 
 	%* Loop through analysis operations;
 	%do iop = 1 %to &noperations.;
-
-
-		/*
-		%* Create a work version of the ARD with a row for each expected result;;
-		%outline_ard(ardlib=&ardlib., mdlib=&mdlib., analid=&analid., methid=&methid.,
-			opid=&opid., dsout=work.analysisresults);
-		*/
 
 		%* Execute this operation;
 		%run_operation(mdlib=&mdlib., datalib=&datalib., ardlib=&ardlib., 
@@ -109,23 +102,12 @@
 
 	%end;
 
-	/*
-
-	* Append work ARD to main ARD;
-	proc append base = &ardlib..analysisresults data = analysisresults;
-	run;
-	quit;
-
-	*/
-
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;
-		/*
 		proc datasets library=work;
-			delete adwork analset analysisresults grouping rawres;
+			delete workds;
 		run;
 		quit;
-		*/
 	%end;
 
 	* Write completion message to log;
