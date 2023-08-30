@@ -62,80 +62,11 @@
 		%put NOTE:     Operation ID: &&relopid&irel.;
 	%end;
 
+	%* Create a work version of the ARD with a row for each expected result;;
+	%outline_ard(ardlib=&ardlib., mdlib=&mdlib., analid=&analid., methid=&methid.,
+		opid=&opid., dsout=work.analysisresults);
+
 	/*	
-	%* Get analysis set;
-	%define_analset(mdlib=&mdlib., datalib=&datalib., analsetid=&analsetid.);
-
-	* Build list of groupings;
-	%local groupings;
-	%let groupings = &grid1.;
-	%if &grid2. ne %str() %then %let groupings = &groupings.|&grid2.;;
-	%if &grid3. ne %str() %then %let groupings = &groupings.|&grid3.;;
-
-	%* Create a work dataset containing the relevant records and variables;
-	%create_adwork(mdlib=&mdlib., datalib=&datalib., dsdd=&analds., 
-		groupings=&groupings.);
-
-	%* Get the parameters required for the analysis;
-	%local grpvars grpvarsx gr1ids gr1labels gr1conds 
-		gr2ids gr2labels gr2conds 
-		gr3ids gr3labels gr3conds
-		datadriven opids;
-	%let gr1ids = %str();
-	%let gr1conds = %str();
-	%let gr2ids = %str();
-	%let gr2conds = %str();
-	%let gr3ids = %str();
-	%let gr3conds = %str();
-	proc sql;
-		select max(dataDriven) into :datadriven
-			from &mdlib..analysisgroupings
-			where id in ("&grid1.", "&grid2.", "&grid3.");
-		select e.id, e.label, e.expression 
-				into :gr1ids separated by '|', 
-					:gr1labels separated by '|',
-					:gr1conds separated by '|'
-			from &mdlib..analysisgroupings g join &mdlib..expressions e
-				on g.group_id = e.id
-			where g.id = "&grid1.";
-		%if &grid2. ne %str() %then %do;
-			select e.id, e.label, e.expression 
-					into :gr2ids separated by '|', 
-						:gr2labels separated by '|',
-						:gr2conds separated by '|'
-				from &mdlib..analysisgroupings g join &mdlib..expressions e
-					on g.group_id = e.id
-				where g.id = "&grid2.";
-		%end;
-		%if &grid3. ne %str() %then %do;
-			select e.id, e.label, e.expression 
-					into :gr3ids separated by '|', 
-						:gr3labels separated by '|',
-						:gr3conds separated by '|'
-				from &mdlib..analysisgroupings g join &mdlib..expressions e
-					on g.group_id = e.id
-				where g.id = "&grid3.";
-		%end;
-		select operation_id into :opids separated by '|'
-			from &mdlib..analysismethods
-			where id = "&methid."
-			order by operation_order;
-	quit;
-	%let grpvarsx = %sysfunc(tranwrd(&grpvars.,%str( ),*));
-
-	%* Loop through analysis operations;
-	%local iop opid opname opord oplabel oppatt;
-	%let iop = 1;
-	%do %while(%scan(&opids., &iop., '|') ne );
-		%let opid = %scan(&opids., &iop., '|');
-		%let opname = %scan(&opnames., &iop., '|');
-		%let opord = %scan(&opords., &iop., '|');
-		%let oplabel = %scan(&oplabels., &iop., '|');
-		%let oppatt = %scan(&oppatt., &iop., '|');
-
-		%* Create a work version of the ARD with a row for each expected result;;
-		%outline_ard(ardlib=&ardlib., mdlib=&mdlib., analid=&analid., methid=&methid.,
-			opid=&opid., dsout=work.analysisresults);
 
 		%* Execute this operation;
 		%if &opid. = Mth01_CatVar_Count_ByGrp_1_n %then %do;
