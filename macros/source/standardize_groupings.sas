@@ -21,9 +21,11 @@
 * @param dsin		Input dataset containing data to be grouped.
 * @param ids		List of grouping IDs separated by '|'.
 * @param dsout		Output dataset (working dataset with groupings applied).
+* @param fmtlib		Library in which to store formats created.
 * @param debugfl	Debug flag (Y/N).
 */
-%macro standardize_groupings ( dsgrp=, dsexpr=, dsin=, ids=, dsout=, debugfl=N );
+%macro standardize_groupings ( dsgrp=, dsexpr=, dsin=, ids=, dsout=, fmtlib=,
+	debugfl=N );
 
 	* Create dataset for values of data-driven groupings;
 	data groupvalues;
@@ -134,7 +136,7 @@
 	* Define formats for group values;
 	%do igrouping = 1 %to &&ngroupings;
 		%if &&dd&igrouping. = FALSE %then %do;
-			proc format;
+			proc format library=&fmtlib.;
 				value $&&id&igrouping.
 				%do igroup = 1 %to &&ngroups&igrouping.;
 					"&&gid&igrouping._&igroup." = "%sysfunc(kstrip(&&glabel&igrouping._&igroup.))"
@@ -142,6 +144,7 @@
 				;
 			run;
 		%end;
+		options fmtsearch=(&fmtlib.);
 	%end;
 
 	* Create output dataset from working versions;

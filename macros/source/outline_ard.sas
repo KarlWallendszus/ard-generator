@@ -9,12 +9,7 @@
 * @param ardlib			Library containing analysis results datasets.
 * @param mdlib			Library containing metadata datasets.
 * @param analid			Analysis ID.
-* @param analsetid		Analysis set ID.
-* @param datasubsetid	Data subset ID.
-* @param analds			Analysis dataset.
-* @param analvar		Analysis variable.
 * @param groupingids	List of pipe-delimited data grouping IDs.
-* @param methid			Method ID.
 * @param dsin			Input dataset containing the data to be analysed.
 * @param dsout			Output dataset: outline ARD.
 * @param debugfl		Debug flag (Y/N).
@@ -55,26 +50,101 @@
 				where a.id = "&analid.";
 	quit;
 
-	/*
-	%* If there are groupings, create an ARD fragment for them;
+	%* If there are groupings, process them;
 	%local ngroupings;
 	%let ngroupings = 0;
-	%if "&groupingids." ne %str() %then %do;
+	%if "&groupingids." eq %str() %then %do;
+		proc sql;
+		   	create table ard_grouping (
+				resultGroup1_groupingId varchar(40),
+				resultGroup1_groupId varchar(40),
+				resultGroup1_groupLabel varchar(40),
+				resultGroup1_groupValue varchar(80) )
+		quit;
+	%end;
+	%else %do;
 		%local igrouping;
+
+		%* Create an ARD fragment for groupings;
 		%let igrouping = 1;
-		data ard_groupings;
-			set ardwork;
+		proc sql;
+		   	create table ard_grouping (
 		%do %while (%scan(&groupingids., &igrouping., '|') ne );
-			length resultGroup&igrouping._groupingId $32
-				resultGroup&igrouping._groupId $32
-				resultGroup&igrouping._groupLabel $40
-				resultGroup&igrouping._groupValue $80;
+			%if &igrouping. gt 1 %then %do;
+				,
+			%end;
+			resultGroup&igrouping._groupingId varchar(40),
+			resultGroup&igrouping._groupId varchar(40),
+			resultGroup&igrouping._groupLabel varchar(40),
+			resultGroup&igrouping._groupValue varchar(80)
 			%let igrouping = %eval(&igrouping.+1);
 		%end;
+		 );
+		quit;
 		%let ngroupings = %eval(&igrouping.-1);
-		run;
+
+		* Create a dataset for each grouping containing its distinct values;
+		%local groupingid datadriven;
+		%do igrouping = 1 %to &&ngroupings;
+			%let groupingid = %scan(&groupingids., &igrouping., '|');
+			proc sql;
+				select datadriven into :datadriven
+					from &mdlib..analysisgroupings
+					where id = "&groupingid.";
+				%if &datadriven. = TRUE %then %do;
+					create table groupvalues&igrouping.
+						as select distinct g.id as groupingid,
+								g.group_id as groupid, 
+								g.group_label as grouplabel,
+								d.&groupingid. as groupvalue
+							from &mdlib..analysisgroupings g, &dsin. d
+							where g.id = "&groupingid."
+							order by 1, 2, 4;
+				%end;
+				%else %do;
+					create table groupvalues&igrouping.
+						as select id as groupingid,
+								group_id as groupid, 
+								group_label as grouplabel,
+								group_id as groupvalue
+							from &mdlib..analysisgroupings
+							where id = "&groupingid."
+							order by 1, 2, 4;
+				%end;
+			quit;
+		%end;
+
+		* Insert a row into the ARD fragment for each combination of groups;
+		proc sql;
+			insert into ard_grouping ( 
+			%do igrouping = 1 %to &&ngroupings;
+				%if &igrouping. gt 1 %then %do;
+					,
+				%end;
+				resultGroup&igrouping._groupingId,
+				resultGroup&igrouping._groupId,
+				resultGroup&igrouping._groupLabel,
+				resultGroup&igrouping._groupValue
+			%end;
+			)
+			select 
+			%do igrouping = 1 %to &&ngroupings;
+				%if &igrouping. gt 1 %then %do;
+					,
+				%end;
+				g&igrouping..groupingId, g&igrouping..groupId,
+				g&igrouping..groupLabel, g&igrouping..groupValue
+			%end;
+			from 
+			%do igrouping = 1 %to &&ngroupings;
+				%if &igrouping. gt 1 %then %do;
+					,
+				%end;
+				groupvalues&igrouping. g&igrouping.
+			%end;
+			;
+		quit;
 	%end;
-	*/
 
 	%* Create an empty ARD fragment for values;
 	proc sql;
@@ -83,42 +153,24 @@
 			formattedValue varchar(32) );
 	quit;
 
-	/*
-	%* Insert a row for each expected result;
+	%* Joim all the ARD fragments together;
 	proc sql;
-		insert into &dsout.
-			( id, analysisSet_label, method_id, method_label, 
-				operation_id, operation_label, operation_resultPattern, 
-				resultGroup1_groupingId, resultGroup1_groupId, 
-				resultGroup1_group_label, 
-				resultGroup2_groupingId, resultGroup2_groupId, 
-				resultGroup2_group_label, 
-				resultGroup3_groupingId, resultGroup3_groupId, 
-				resultGroup3_group_label )
-			select a.id, s.label, a.method_id, m.label, m.operation_id, 
-					m.operation_label, m.operation_resultPattern, 
-					g1.grouping_id, g1.groupValue, g1.groupLabel,
-					g2.grouping_id, g2.groupValue, g2.groupLabel,
-					g3.grouping_id, g3.groupValue, g3.groupLabel
-				from &mdlib..analyses a join &mdlib..analysissets s 
-					on a.analysisSetId = s.id
-					join &mdlib..analysismethods m on a.method_id = m.id
-					left join &dsvals. g1 on a.groupingId1 = g1.grouping_id
-					left join &dsvals. g2 on a.groupingId2 = g2.grouping_id
-					left join &dsvals. g3 on a.groupingId3 = g3.grouping_id
-				where a.id = "&analid." and a.method_id = "&methid." and 
-					m.operation_id = "&opid.";
+		create table &dsout.
+			as select c.*, g.*, v.*
+				from ard_coremd c join ard_grouping g on 1=1
+					left join ard_value v on 1=1;
 	quit;
-	*/
 
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;
-		/*
 		proc datasets library=work;
-			delete ardwork;
+			delete ard_coremd ard_grouping ard_value
+			%do igrouping = 1 %to &&ngroupings;
+				groupvalues&igrouping.
+			%end;
+			;
 		run;
 		quit;
-		*/
 	%end;
 
 %mend outline_ard;

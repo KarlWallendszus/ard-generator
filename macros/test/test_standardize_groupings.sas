@@ -42,25 +42,25 @@ run;
 * Test 1: Treatment;
 %standardize_groupings(dsgrp=testdata.analysisgroupings, 
 	dsexpr=testdata.expressions, dsin=testdata.groupingtest1, 
-	dsout=testout.groupingtest1, debugfl=Y,
+	dsout=testout.groupingtest1, fmtlib=testout, debugfl=Y,
 	ids=AnlsGrouping_01_Trt);
 
 * Test 2: Treatment & sex;
 %standardize_groupings(dsgrp=testdata.analysisgroupings, 
 	dsexpr=testdata.expressions, dsin=testdata.groupingtest2, 
-	dsout=testout.groupingtest2,  
+	dsout=testout.groupingtest2, fmtlib=testout, 
 	ids=AnlsGrouping_01_Trt|AnlsGrouping_02_Sex);
 
 * Test 3: Treatment & age group;
 %standardize_groupings(dsgrp=testdata.analysisgroupings, 
 	dsexpr=testdata.expressions, dsin=testdata.groupingtest3, 
-	dsout=testout.groupingtest3,  
+	dsout=testout.groupingtest3, fmtlib=testout, 
 	ids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp);
 
 * Test 4: Treatment & SOC;
 %standardize_groupings(dsgrp=testdata.analysisgroupings, 
 	dsexpr=testdata.expressions, dsin=testdata.groupingtest4, 
-	dsout=testout.groupingtest4, 
+	dsout=testout.groupingtest4, fmtlib=testout, 
 	ids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc);
 
 * Direct log output back to the log window;

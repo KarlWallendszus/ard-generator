@@ -59,7 +59,7 @@
 	%build_work_dataset(mdlib=&mdlib., datalib=&datalib., analds=&analds., 
 		analvar=&analvar., analsetid=&analsetid., 
 		datasubsetid=&datasubsetid., groupingids=&groupingids., 
-		debugfl=&debugfl.);
+		fmtlib=&ardlib., debugfl=&debugfl.);
 
 	%* Loop through analysis operations;
 	%do iop = 1 %to &noperations.;
@@ -68,7 +68,8 @@
 		%run_operation(mdlib=&mdlib., datalib=&datalib., ardlib=&ardlib., 
 			opid=&&opid&iop., methid=&methid., analid=&analid., 
 			analsetid=&analsetid., datasubsetid=&datasubsetid., 
-			analds=&analds., analvar=&analvar., debugfl=&debugfl.);
+			groupingids=&groupingids., analds=&analds., analvar=&analvar., 
+			debugfl=&debugfl.);
 
 		/*
 		%if &opid. = Mth01_CatVar_Count_ByGrp_1_n %then %do;

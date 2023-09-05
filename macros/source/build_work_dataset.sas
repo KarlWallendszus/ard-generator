@@ -12,11 +12,12 @@
 * @param analsetid		Analysis set ID.
 * @param datasubsetid	Data subset ID.
 * @param groupingids	List of pipe-delimited data grouping IDs.
+* @param fmtlib			Library in which to store formats created.
 * @param debugfl		Debug flag (Y/N).
 ********************************************************************************
 */
 %macro build_work_dataset ( mdlib=, datalib=, analds=, analvar=, analsetid=, 
-	datasubsetid=, groupingids=, debugfl=N );
+	datasubsetid=, groupingids=, fmtlib=work, debugfl=N );
 
 	%* Define the analysis set;
 	%define_analset(mdlib=&mdlib., datalib=&datalib., analsetid=&analsetid.);
@@ -138,7 +139,8 @@
 	%if "&groupingids." ne %str() %then %do;
 		%standardize_groupings(dsgrp=testdata.analysisgroupings, 
 			dsexpr=testdata.expressions, dsin=workds, 
-			ids=&groupingids., dsout=workds_g, debugfl=&debugfl.);
+			ids=&groupingids., dsout=workds_g, fmtlib=&fmtlib., 
+			debugfl=&debugfl.);
 		data workds;
 			set workds_g;
 		run;

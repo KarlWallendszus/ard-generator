@@ -12,13 +12,14 @@
 * @param analid			Analysis ID.
 * @param analsetid		Analysis set ID.
 * @param datasubsetid	Data subset ID.
+* @param groupingids	List of pipe-delimited data grouping IDs.
 * @param analds			Analysis dataset.
 * @param analvar		Analysis variable.
 * @param debugfl		Debug flag (Y/N).
 ********************************************************************************
 */
 %macro run_operation ( mdlib=, datalib=, ardlib=, opid=, methid=, analid=, 
-	analsetid=, datasubsetid=, analds=, analvar=, debugfl=N );
+	analsetid=, datasubsetid=, groupingids=, analds=, analvar=, debugfl=N );
 
 	%* Get operation details;
 	%local opname opord oplabel oppatt 
@@ -62,9 +63,9 @@
 		%put NOTE:     Operation ID: &&relopid&irel.;
 	%end;
 
-	%* Create a work version of the ARD with a row for each expected result;;
-	%outline_ard(ardlib=&ardlib., mdlib=&mdlib., analid=&analid., methid=&methid.,
-		opid=&opid., dsout=work.analysisresults);
+	%* Create a work version of the ARD with a row for each expected result;
+	%outline_ard(ardlib=&ardlib., mdlib=&mdlib., analid=&analid., 
+		groupingids=&groupingids., dsin=&analds., dsout=work.ard);
 
 	/*	
 

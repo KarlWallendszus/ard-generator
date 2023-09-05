@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 * Tests the outline_ard macro.
 * @author Karl Wallendszus
 * @created 2023-08-30
@@ -54,13 +54,20 @@ run;
 	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
 	dsin=testdata.groupingtest3, dsout=testout.outline_ard3, debugfl=Y);
 
+* Test 4: 2 operations, 2 groupings, one of them data-driven;
+%outline_ard(ardlib=testout, mdlib=testdata, analid=An07_09_Soc_Summ_ByTrt, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc, 
+	dsin=testdata.workds_trt_soc, dsout=testout.outline_ard4);
+
 * Direct log output back to the log window;
 proc printto;
 run; 
 
 * Output datasets as JSON;
 proc json out = "&sasbaseard.\macros\test\output\test_outline_ard_&progdtc_name..json" pretty;
-	export testout.workds1;
-	export testout.workds2;
+	export testout.outline_ard1;
+	export testout.outline_ard2;
+	export testout.outline_ard3;
+	export testout.outline_ard4;
 run;
 
