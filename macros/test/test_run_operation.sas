@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 * Tests the run_operation macro.
 * @author Karl Wallendszus
 * @created 2023-08-30
@@ -39,31 +39,18 @@ options nomlogic nomprint nosymbolgen;
 proc printto log="&logdir.\test_run_method_&progdtc_name..log";
 run; 
 
-* Test 1: Summary by treatment;
-%run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	methid=Mth01_CatVar_Count_ByGrp, analid=An01_05_SAF_Summ_ByTrt, 
-	analsetid=AnalysisSet_02_SAF, analds=ADSL, analvar=USUBJID, 
-	groupingids=AnlsGrouping_01_Trt,
-	debugfl=N);
+* Test 1.1: Categorical variable count by group;
+%run_operation(mdlib=testdata, datalib=testdata, ardlib=testout, 
+	opid=Mth01_CatVar_Count_ByGrp_1_n, methid=Mth01_CatVar_Count_ByGrp, 
+	analid=An01_05_SAF_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt, analvar=USUBJID, debugfl=Y);
 
-* Test 2: Summary by age group and treatment;
-%run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	methid=Mth01_CatVar_Summ_ByGrp, analid=An03_02_AgeGrp_Summ_ByTrt, 
-	analsetid=AnalysisSet_02_SAF, analds=ADSL, analvar=USUBJID, 
-	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, debugfl=N);
+* Test 2.1: Summary by age group and treatment;
 
-* Test 3: Summary by race and treatment;
-%run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	methid=Mth01_CatVar_Summ_ByGrp, analid=An03_05_Race_Summ_ByTrt, 
-	analsetid=AnalysisSet_02_SAF, analds=ADSL, analvar=USUBJID, 
-	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_04_Race, debugfl=N);
+* Test 2.2: Summary by race and treatment;
 
-* Test 4: Summary by SOC and treatment;
-%run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	methid=Mth01_CatVar_Summ_ByGrp, analid=An07_09_Soc_Summ_ByTrt, 
-	analsetid=AnalysisSet_02_SAF, datasubsetid=Dss01_TEAE, analds=ADAE, 
-	analvar=USUBJID, groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc, 
-	debugfl=Y);
+* Test 2.3: Summary by SOC and treatment;
 
 * Direct log output back to the log window;
 proc printto;

@@ -68,38 +68,8 @@
 		%run_operation(mdlib=&mdlib., datalib=&datalib., ardlib=&ardlib., 
 			opid=&&opid&iop., methid=&methid., analid=&analid., 
 			analsetid=&analsetid., datasubsetid=&datasubsetid., 
-			groupingids=&groupingids., analds=&analds., analvar=&analvar., 
+			groupingids=&groupingids., analds=workds, analvar=&analvar., 
 			debugfl=&debugfl.);
-
-		/*
-		%if &opid. = Mth01_CatVar_Count_ByGrp_1_n %then %do;
-			%op_catvar_count_bygrp_n(mdlib=&mdlib., ardlib=&ardlib., 
-				analid=&analid., methid=&methid., opord=&opord., opid=&opid., 
-				opname=&opname., oplabel=&oplabel., oppatt=&oppatt.,
-				analvar=&analvar., 
-				grid1=&grid1., gr1ids=&gr1ids., gr1labels=&gr1labels., 
-				gr1conds=&gr1conds., 
-				grid2=&grid2., gr2ids=&gr2ids., gr2labels=&gr2labels., 
-				gr2conds=&gr2conds., 
-				grid3=&grid3., gr3ids=&gr3ids., gr3labels=&gr3labels., 
-				gr3conds=&gr3conds.);
-		%end;
-		%else %if &opid. = Mth01_CatVar_Summ_ByGrp_1_n %then %do;
-			%op_catvar_summ_bygrp_n(mdlib=&mdlib., ardlib=&ardlib., 
-				analid=&analid., methid=&methid., opord=&opord., opid=&opid., 
-				opname=&opname., oplabel=&oplabel., oppatt=&oppatt.,
-				analvar=&analvar., 
-				grid1=&grid1., gr1ids=&gr1ids., gr1labels=&gr1labels., 
-				gr1conds=&gr1conds., 
-				grid2=&grid2., gr2ids=&gr2ids., gr2labels=&gr2labels., 
-				gr2conds=&gr2conds., 
-				grid3=&grid3., gr3ids=&gr3ids., gr3labels=&gr3labels., 
-				gr3conds=&gr3conds.);
-		%end;
-		%else %do;
-			%put WARNING: Operation &opid. is not supported.;
-		%end;
-		*/
 
 	%end;
 
