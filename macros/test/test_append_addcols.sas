@@ -1,7 +1,7 @@
-﻿/*!
-* Tests the run_operation macro.
+/*!
+* Tests the append_addcols macro.
 * @author Karl Wallendszus
-* @created 2023-08-30
+* @created 2023-09-06
 */
 *******************************************************************************;
 
@@ -36,35 +36,36 @@ options nomlogic nomprint nosymbolgen;
 *******************************************************************************;
 
 * Direct log output to a file;
-proc printto log="&logdir.\test_run_method_&progdtc_name..log";
+proc printto log="&logdir.\test_append_addcols_&progdtc_name..log";
 run; 
 
-* Test 1.1: Categorical variable count by group;
-data testout.ard_1_1;
-	set testdata.ard_template;
+* Same columns;
+data testout.append_addcols_1;
+	set testdata.cars_base;
 run;
-%run_operation(mdlib=testdata, datalib=testdata,  
-	opid=Mth01_CatVar_Count_ByGrp_1_n, methid=Mth01_CatVar_Count_ByGrp, 
-	analid=An01_05_SAF_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
-	groupingids=AnlsGrouping_01_Trt, 
-	analds=testdata.workds_trt, analvar=USUBJID, ard=testout.ard_1_1, 
+%append_addcols(dsbase=testout.append_addcols_1, dsnew=testdata.cars_acura, 
 	debugfl=Y);
 
-* Test 2.1: Summary by age group and treatment;
-data testout.ard_2_1;
-	set testdata.ard_template;
+* More columns in new dataset;
+data testout.append_addcols_2;
+	set testdata.cars_acura;
 run;
-%run_operation(mdlib=testdata, datalib=testdata,  
-	opid=Mth01_CatVar_Summ_ByGrp_1_n, methid=Mth01_CatVar_Summ_ByGrp, 
-	analid=An03_02_AgeGrp_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
-	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
-	analds=testdata.workds_trt_agegr, analvar=USUBJID, ard=testout.ard_2_1, 
+%append_addcols(dsbase=testout.append_addcols_2, dsnew=testdata.cars_audi, 
 	debugfl=Y);
 
-* Test 2.2: Summary by race and treatment;
-
-* Test 2.3: Summary by SOC and treatment;
+* Both datasets have some columns unique to them;
+data testout.append_addcols_3;
+	set testdata.cars_audi;
+run;
+%append_addcols(dsbase=testout.append_addcols_3, dsnew=testdata.cars_bmw);
 
 * Direct log output back to the log window;
 proc printto;
 run; 
+
+* Output datasets as JSON;
+proc json out = "&sasbaseard.\macros\test\output\test_append_addcols_&progdtc_name..json" pretty;
+	export testout.append_addcols_1;
+	export testout.append_addcols_2;
+	export testout.append_addcols_3;
+run;

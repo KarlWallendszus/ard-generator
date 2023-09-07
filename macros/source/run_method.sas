@@ -65,11 +65,11 @@
 	%do iop = 1 %to &noperations.;
 
 		%* Execute this operation;
-		%run_operation(mdlib=&mdlib., datalib=&datalib., ardlib=&ardlib., 
+		%run_operation(mdlib=&mdlib., datalib=&datalib., 
 			opid=&&opid&iop., methid=&methid., analid=&analid., 
 			analsetid=&analsetid., datasubsetid=&datasubsetid., 
 			groupingids=&groupingids., analds=workds, analvar=&analvar., 
-			debugfl=&debugfl.);
+			ard=&ardlib..ard, debugfl=&debugfl.);
 
 	%end;
 

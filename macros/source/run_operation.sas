@@ -6,7 +6,6 @@
 *
 * @param mdlib			Library containing metadata datasets.
 * @param datalib		Library containing data to be analysed.
-* @param ardlib			Library containing analysis results datasets.
 * @param opid			Operation ID.
 * @param methid			Method ID.
 * @param analid			Analysis ID.
@@ -15,11 +14,12 @@
 * @param groupingids	List of pipe-delimited data grouping IDs.
 * @param analds			Analysis dataset.
 * @param analvar		Analysis variable.
+* @param ard			Analysis results dataset.
 * @param debugfl		Debug flag (Y/N).
 ********************************************************************************
 */
-%macro run_operation ( mdlib=, datalib=, ardlib=, opid=, methid=, analid=, 
-	analsetid=, datasubsetid=, groupingids=, analds=, analvar=, debugfl=N );
+%macro run_operation ( mdlib=, datalib=, opid=, methid=, analid=, analsetid=, 
+datasubsetid=, groupingids=, analds=, analvar=, ard=, debugfl=N );
 
 	%* Get operation details;
 	%local opname opord oplabel oppatt 
@@ -64,11 +64,12 @@
 	%end;
 
 	%* Create a work version of the ARD with a row for each expected result;
-	%outline_ard(ardlib=&ardlib., mdlib=&mdlib., analid=&analid., 
+	%outline_ard(ardlib=work, mdlib=&mdlib., analid=&analid., 
 		groupingids=&groupingids., dsin=&analds., dsout=work.ard);
 
 	%* Execute this operation;
-	%if &opid. = Mth01_CatVar_Count_ByGrp_1_n %then %do;
+	%if &opid. = Mth01_CatVar_Count_ByGrp_1_n 
+			or &opid. = Mth01_CatVar_Summ_ByGrp_1_n %then %do;
 		%op_catvar_count_bygrp_n(analid=&analid., methid=&methid., opid=&opid., 
 			groupingids=&groupingids., dsin=&analds., dsout=work.ard, 
 			debugfl=&debugfl.);
@@ -77,29 +78,8 @@
 		%put WARNING: Operation &opid. is not supported.;
 	%end;
 
-		/*	
-		%else %if &opid. = Mth01_CatVar_Summ_ByGrp_1_n %then %do;
-			%op_catvar_summ_bygrp_n(mdlib=&mdlib., ardlib=&ardlib., 
-				analid=&analid., methid=&methid., opord=&opord., opid=&opid., 
-				opname=&opname., oplabel=&oplabel., oppatt=&oppatt.,
-				analvar=&analvar., 
-				grid1=&grid1., gr1ids=&gr1ids., gr1labels=&gr1labels., 
-				gr1conds=&gr1conds., 
-				grid2=&grid2., gr2ids=&gr2ids., gr2labels=&gr2labels., 
-				gr2conds=&gr2conds., 
-				grid3=&grid3., gr3ids=&gr3ids., gr3labels=&gr3labels., 
-				gr3conds=&gr3conds.);
-		%end;
-
-		%let iop = %eval(&iop.+1);
-	%end;
-
 	* Append work ARD to main ARD;
-	proc append base = &ardlib..analysisresults data = analysisresults;
-	run;
-	quit;
-
-	*/
+	%append_addcols(dsbase=&ard., dsnew=work.ard);
 
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;

@@ -11,39 +11,10 @@
 * @param dsin			Input analysis dataset.
 * @param dsout			Output analysis results dataset.
 * @param debugfl		Debug flag (Y/N).
-*
-* @param mdlib		Library containing metadata datasets.
-* @param ardlib		Library containing analysis results datasets.
-* @param opname		Operation name.
-* @param oplabel	Operation label.
-* @param oppatt		Operation result pattern.
-* @param opord		Operation order within method.
-* @param analvar	Analysis variable.
-* @param grid1		Grouping 1 ID.
-* @param gr1ids		List of group IDs for grouping 1.
-* @param gr1labels	List of group labels for grouping 1.
-* @param gr1conds	List of group conditions for grouping 1.
-* @param grid2		Grouping 2 ID.
-* @param gr2ids		List of group IDs for grouping 2.
-* @param gr2labels	List of group labels for grouping 2.
-* @param gr2conds	List of group conditions for grouping 2.
-* @param grid3		Grouping 3 ID.
-* @param gr3ids		List of group IDs for grouping 3.
-* @param gr3labels	List of group labels for grouping 3.
-* @param gr3conds	List of group conditions for grouping 3.
 ********************************************************************************
 */
 %macro op_catvar_count_bygrp_n ( analid=, methid=, opid=, groupingids=, dsin=, 
 	dsout=, debugfl=N );
-
-/*
-	mdlib=, ardlib=, opid=, opname=, oplabel=, 
-	oppatt=, opord=, analid=, methid=, analvar=, 
-	grid1=, gr1ids=, gr1labels=, gr1conds=, 
-	grid2=, gr2ids=, gr2labels=, gr2conds=, 
-	grid3=, gr3ids=, gr3labels=, gr3conds=, 
-*/
-
 
 	* Build the tables request;
 	%local igrouping ngroupings groupingid tabreq;

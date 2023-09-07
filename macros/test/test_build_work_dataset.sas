@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Tests the build_work_dataset macro.
 * @author Karl Wallendszus
 * @created 2023-08-02
@@ -48,10 +48,26 @@ data testout.workds1;
 run;
 
 * Test 2;
+%build_work_dataset(mdlib=testdata, datalib=testdata, analds=adsl, 
+	analvar=usubjid, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp);
+data testout.workds2;
+	set workds;
+run;
+
+* Test 3;
+%build_work_dataset(mdlib=testdata, datalib=testdata, analds=adsl, 
+	analvar=usubjid, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_04_Race);
+data testout.workds3;
+	set workds;
+run;
+
+* Test 4;
 %build_work_dataset(mdlib=testdata, datalib=testdata, analds=adae, 
 	analvar=usubjid, analsetid=AnalysisSet_02_SAF, datasubsetid=Dss01_TEAE, 
 	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc);
-data testout.workds2;
+data testout.workds4;
 	set workds;
 run;
 
@@ -63,5 +79,7 @@ run;
 proc json out = "&sasbaseard.\macros\test\output\test_build_work_dataset_&progdtc_name..json" pretty;
 	export testout.workds1;
 	export testout.workds2;
+	export testout.workds3;
+	export testout.workds4;
 run;
 
