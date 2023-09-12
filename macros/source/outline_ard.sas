@@ -9,14 +9,15 @@
 * @param ardlib			Library containing analysis results datasets.
 * @param mdlib			Library containing metadata datasets.
 * @param analid			Analysis ID.
+* @param opid			Operation ID.
 * @param groupingids	List of pipe-delimited data grouping IDs.
 * @param dsin			Input dataset containing the data to be analysed.
 * @param dsout			Output dataset: outline ARD.
 * @param debugfl		Debug flag (Y/N).
 ********************************************************************************
 */
-%macro outline_ard ( ardlib=, mdlib=, analid=, groupingids=, dsin=, dsout=, 
-	debugfl=N );
+%macro outline_ard ( ardlib=, mdlib=, analid=, opid=, groupingids=, dsin=, 
+	dsout=, debugfl=N );
 
 	%* Create an ARD fragment containing core metadata;
 	%* One row per operation in this analysis;
@@ -47,7 +48,7 @@
 					left join &mdlib..datasubsets d on a.analysisSetId = d.id
 					left join &mdlib..analysismethods m on a.method_id = m.id
 					left join &mdlib..methodoperations o on a.method_id = o.id
-				where a.id = "&analid.";
+				where a.id = "&analid." and o.operation_id = "&opid.";
 	quit;
 
 	%* If there are groupings, process them;
