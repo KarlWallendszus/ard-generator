@@ -50,7 +50,7 @@ datasubsetid=, groupingids=, analds=, analvar=, ard=, debugfl=N );
 		%let relopid&irel. = %scan(&relopids., &irel., '|');
 	%end;
 
-	%* Show operaation details;
+	%* Show operation details;
 	%put NOTE: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 	%put NOTE: Operation &opid.: &opname.;
 	%put NOTE:   In method &methid. of analysis &analid.;
@@ -64,7 +64,7 @@ datasubsetid=, groupingids=, analds=, analvar=, ard=, debugfl=N );
 	%end;
 
 	%* Create a work version of the ARD with a row for each expected result;
-	%outline_ard(ardlib=work, mdlib=&mdlib., analid=&analid., 
+	%outline_ard(ardlib=work, mdlib=&mdlib., analid=&analid., opid=&opid.,
 		groupingids=&groupingids., dsin=&analds., dsout=work.ard);
 
 	%* Execute this operation;
@@ -73,6 +73,34 @@ datasubsetid=, groupingids=, analds=, analvar=, ard=, debugfl=N );
 		%op_catvar_count_bygrp_n(analid=&analid., methid=&methid., opid=&opid., 
 			groupingids=&groupingids., dsin=&analds., dsout=work.ard, 
 			debugfl=&debugfl.);
+	%end;
+	%else %if &opid. = Mth01_CatVar_Summ_ByGrp_2_pct %then %do;
+
+		%local irel_num irel_den;
+		%do irel = 1 %to &nrels.;
+			%if &&relrole&irel. = NUMERATOR %then %let irel_num = &irel.;
+			%else %if &&relrole&irel. = DENOMINATOR %then %let irel_den = &irel.;
+		%end;
+		%local num_analid den_analid;
+		proc sql;
+			select a.analysisid into :num_analid
+				from &mdlib..analysesrefoperations a
+				where a.id = "&analid" and 
+					a.referencedoperationrelationshipi = "&&relid&irel_num.";
+			select a.analysisid into :den_analid
+				from &mdlib..analysesrefoperations a
+				where a.id = "&analid" and 
+					a.referencedoperationrelationshipi = "&&relid&irel_den.";
+		quit;
+
+		%put NOTE: NUM &&relid&irel_num. &num_analid. &&relopid&irel_num.;
+		%put NOTE: DEN &&relid&irel_den. &den_analid. &&relopid&irel_den.;
+
+		%op_catvar_summ_bygrp_pct(analid=&analid., methid=&methid., opid=&opid., 
+			groupingids=&groupingids., 
+			num_analid=&num_analid., num_opid=&&relopid&irel_num., 
+			den_analid=&den_analid., den_opid=&&relopid&irel_den., 
+			ardin=&ard., dsout=work.ard, debugfl=&debugfl.);
 	%end;
 	%else %do;
 		%put WARNING: Operation &opid. is not supported.;
@@ -83,12 +111,10 @@ datasubsetid=, groupingids=, analds=, analvar=, ard=, debugfl=N );
 
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;
-		/*
 		proc datasets library=work;
-			delete adwork analset analysisresults grouping rawres;
+			delete ard;
 		run;
 		quit;
-		*/
 	%end;
 
 	* Write completion message to log;
