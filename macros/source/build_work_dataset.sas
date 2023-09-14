@@ -126,7 +126,7 @@
 	%if &datasubsetid. ne %str() %then %do;
 		proc sql;
 			select expression into :dssexpr
-				from &datalib..expressions
+				from &mdlib..expressions
 				where id = "&datasubsetid.";
 		quit;
 		%let dssexpr = &dssexpr.;
@@ -138,7 +138,7 @@
 	%* Standardise groupings;
 	%if "&groupingids." ne %str() %then %do;
 		%standardize_groupings(dsgrp=testdata.analysisgroupings, 
-			dsexpr=testdata.expressions, dsin=workds, 
+			dsexpr=&mdlib..expressions, dsin=workds, 
 			ids=&groupingids., dsout=workds_g, fmtlib=&fmtlib., 
 			debugfl=&debugfl.);
 		data workds;

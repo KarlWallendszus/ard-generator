@@ -67,7 +67,7 @@
 	* Show analysis details;
 	%put NOTE: ================================================================================;
 	%put NOTE: Analysis &analid.: &analname.;
-	%put NOTE:   Description: &analdesc.;
+	%put NOTE:   Description: %bquote(&analdesc.);
 	%put NOTE:   Version: &analver.;
 	%put NOTE:   Reason: &analreas.;
 	%put NOTE:   Purpose: &analpurp.;

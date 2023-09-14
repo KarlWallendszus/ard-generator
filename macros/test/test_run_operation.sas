@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Tests the run_operation macro.
 * @author Karl Wallendszus
 * @created 2023-08-30
@@ -77,7 +77,27 @@ run;
 	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
 	analds=testdata.workds_trt_agegr, analvar=USUBJID, ard=testout.ard_2_2);
 
-* Test 3: Summary by SOC and treatment;
+* Test 3.1: Summary by SOC and treatment: N;
+data testout.ard_3_1;
+	set testdata.ard_template;
+run;
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth01_CatVar_Summ_ByGrp_1_n, methid=Mth01_CatVar_Summ_ByGrp, 
+	analid=An07_09_Soc_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc, 
+	analds=testdata.workds_trt_soc, analvar=USUBJID, ard=testout.ard_3_1,
+	debugfl=Y);
+
+* Test 3.2: Summary by SOC and treatment: Percentage;
+data testout.ard_3_2;
+	set testdata.ard_3_2;
+run;
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth01_CatVar_Summ_ByGrp_2_pct, methid=Mth01_CatVar_Summ_ByGrp, 
+	analid=An07_09_Soc_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc, 
+	analds=testdata.workds_trt_soc, analvar=USUBJID, ard=testout.ard_3_2,
+	debugfl=Y);
 
 * Direct log output back to the log window;
 proc printto;
@@ -88,4 +108,6 @@ proc json out = "&sasbaseard.\macros\test\output\test_run_operation_&progdtc_nam
 	export testout.ard_1;
 	export testout.ard_2_1;
 	export testout.ard_2_2;
+	export testout.ard_3_1;
+	export testout.ard_3_2;
 run;

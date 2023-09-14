@@ -36,7 +36,7 @@
 		set &ardin. (
 			keep = analysisid operationid
 			%do igrouping = 1 %to &ngroupings.;
-				resultgroup&igrouping._groupid
+				resultgroup&igrouping._groupvalue
 			%end;
 				rawvalue
 			where = ( analysisid = "&num_analid." and operationid = "&num_opid." ) );
@@ -44,7 +44,7 @@
 	proc sort data = numstats;
 		by 
 		%do igrouping = 1 %to &ngroupings.;
-			resultgroup&igrouping._groupid
+			resultgroup&igrouping._groupvalue
 		%end;
 		;
 	run;
@@ -54,7 +54,7 @@
 		set &ardin. (
 			keep = analysisid operationid
 			%do igrouping = 1 %to &ngroupings.;
-				resultgroup&igrouping._groupid
+				resultgroup&igrouping._groupvalue
 			%end;
 				rawvalue
 			where = ( analysisid = "&den_analid." and operationid = "&den_opid." ) );
@@ -62,7 +62,7 @@
 	proc sort data = denstats;
 		by 
 		%do igrouping = 1 %to &ngroupings.;
-			resultgroup&igrouping._groupid
+			resultgroup&igrouping._groupvalue
 		%end;
 		;
 	run;
@@ -74,7 +74,7 @@
 		proc sql;
 			select count(*) into :dengroupingcount&igrouping.
 				from denstats
-				where resultgroup&igrouping._groupid is not null;
+				where resultgroup&igrouping._groupvalue is not null;
 			quit;
 			%if %eval(&&dengroupingcount&igrouping.) > 0 
 				%then %let dengroupingflag&igrouping. = Y;
@@ -89,7 +89,7 @@
 		create table pctstats
 			as select 
 				%do igrouping = 1 %to &ngroupings.;
-					n.resultgroup&igrouping._groupid,
+					n.resultgroup&igrouping._groupvalue,
 				%end;
 				n.rawvalue as numvalue, d.rawvalue as denvalue
 				from numstats n left join denstats d on
@@ -101,7 +101,7 @@
 						%else %do;
 							and
 						%end;
-						n.resultgroup&igrouping._groupid = d.resultgroup&igrouping._groupid
+						n.resultgroup&igrouping._groupvalue = d.resultgroup&igrouping._groupvalue
 					%end;
 				%end;
 				;
@@ -125,7 +125,7 @@
 						%if &igrouping. gt 1 %then %do;
 						and 
 						%end;
-						a.resultGroup&igrouping._groupId = r.resultGroup&igrouping._groupId
+						a.resultGroup&igrouping._groupvalue = r.resultGroup&igrouping._groupvalue
 					%end;
 					)
 				where a.analysisId = "&analid." and a.methodId = "&methid." and

@@ -47,10 +47,10 @@
 
 	%* Show method details;
 	%put NOTE: --------------------------------------------------------------------------------;
-	%put NOTE: Method &methid.: &methname.;
+	%put NOTE: Method &methid.: %bquote(&methname.);
 	%put NOTE:   In analysis &analid.;
-	%put NOTE:   Label: &methlabel.;
-	%put NOTE:   Description: &methdescr.;
+	%put NOTE:   Label: %bquote(&methlabel.);
+	%put NOTE:   Description: %bquote(&methdescr.);
 	%do iop = 1 %to &noperations.;
 		%put NOTE:   Operation &&opord&iop.: &&opid&iop.;
 	%end;

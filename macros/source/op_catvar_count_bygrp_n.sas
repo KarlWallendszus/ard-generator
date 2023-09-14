@@ -61,12 +61,18 @@
 						%if &igrouping. gt 1 %then %do;
 						and 
 						%end;
-						a.resultGroup&igrouping._groupId = r.&&groupingid&igrouping.
+						a.resultGroup&igrouping._groupValue = r.&&groupingid&igrouping.
 					%end;
 					)
 				where a.analysisId = "&analid." and a.methodId = "&methid." and
 					a.operationId = "&opid.";
 	quit;
+
+	%* Convert any missing results to zero;
+	data &dsout.;
+		set &dsout.;
+		if rawValue = . then rawValue = 0;
+	run;
 
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;

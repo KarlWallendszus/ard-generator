@@ -52,10 +52,10 @@ datasubsetid=, groupingids=, analds=, analvar=, ard=, debugfl=N );
 
 	%* Show operation details;
 	%put NOTE: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
-	%put NOTE: Operation &opid.: &opname.;
+	%put NOTE: Operation &opid.: %bquote(&opname.);
 	%put NOTE:   In method &methid. of analysis &analid.;
 	%put NOTE:   Order: &opord.;
-	%put NOTE:   Label: &oplabel.;
+	%put NOTE:   Label: %bquote(&oplabel.);
 	%put NOTE:   Result pattern: &oppatt.;
 	%do irel = 1 %to &nrels.;
 		%put NOTE:   Referenced operation relationship: &&relid&irel.;
