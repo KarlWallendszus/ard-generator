@@ -93,9 +93,6 @@ datasubsetid=, groupingids=, analds=, analvar=, ard=, debugfl=N );
 					a.referencedoperationrelationshipi = "&&relid&irel_den.";
 		quit;
 
-		%put NOTE: NUM &&relid&irel_num. &num_analid. &&relopid&irel_num.;
-		%put NOTE: DEN &&relid&irel_den. &den_analid. &&relopid&irel_den.;
-
 		%op_catvar_summ_bygrp_pct(analid=&analid., methid=&methid., opid=&opid., 
 			groupingids=&groupingids., 
 			num_analid=&num_analid., num_opid=&&relopid&irel_num., 

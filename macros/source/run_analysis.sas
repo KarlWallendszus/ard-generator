@@ -91,16 +91,6 @@
 		datasubsetid=&datasubsetid., analds=&analds., analvar=&analvar.,
 		groupingids=&groupingids., debugfl=&debugfl.);
 
-	* Tidy up unless in debug mode;
-	%if &debugfl. = N %then %do;
-		/*
-		proc datasets library=work;
-			delete adwork analset analysisresults grouping rawres;
-		run;
-		quit;
-		*/
-	%end;
-
 	* Write completion message to log;
 	%put NOTE: Analysis &analid. completed;
 	%put NOTE: ================================================================================;
