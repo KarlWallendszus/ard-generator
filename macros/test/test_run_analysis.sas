@@ -17,14 +17,16 @@
 x "cd &workdir.";
 
 * Set library references;
+libname testdata clear;
 libname testdata "&sasbaseard.\macros\test\data" filelockwait=5;
+libname testout clear;
 libname testout "&sasbaseard.\macros\test\output" filelockwait=5;
 
 * Set date/time macro variables;
 %include "&sasbaseard./setprogdt.sas";
 
 options label dtreset spool;
-*options mlogic mprint symbolgen;
+* options mlogic mprint symbolgen;
 options nomlogic nomprint nosymbolgen;
 
 *******************************************************************************;
@@ -34,6 +36,11 @@ options nomlogic nomprint nosymbolgen;
 *******************************************************************************;
 * Main code
 *******************************************************************************;
+
+* Initialize ARD;
+data testout.ard;
+	set testdata.ard_template;
+run;
 
 * Direct log output to a file;
 proc printto log="&logdir.\test_run_analysis_&progdtc_name..log";

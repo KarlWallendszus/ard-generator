@@ -137,7 +137,7 @@
 
 	%* Standardise groupings;
 	%if "&groupingids." ne %str() %then %do;
-		%standardize_groupings(dsgrp=testdata.analysisgroupings, 
+		%standardize_groupings(dsgrp=&mdlib..analysisgroupings, 
 			dsexpr=&mdlib..expressions, dsin=workds, 
 			ids=&groupingids., dsout=workds_g, fmtlib=&fmtlib., 
 			debugfl=&debugfl.);
