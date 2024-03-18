@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 * Tests the run_operation macro.
 * @author Karl Wallendszus
 * @created 2023-08-30
@@ -101,6 +101,67 @@ run;
 	analds=testdata.workds_trt_soc, analvar=USUBJID, ard=testout.ard_3_2,
 	debugfl=Y);
 
+* Test 4.1: Summary of height by treatment (multiple operations);
+data testout.ard_4_1;
+	set testdata.ard_template;
+run;
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_1_n, opseq=1, nop=8, 
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_2_Mean, opseq=2, nop=8,
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_3_SD, opseq=3, nop=8,
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_4_Median, opseq=4, nop=8,
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_5_Q1, opseq=5, nop=8,
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_6_Q3, opseq=6, nop=8,
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_7_Min, opseq=7, nop=8,
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth02_ContVar_Summ_ByGrp_8_Max, opseq=8, nop=8,
+	methid=Mth02_ContVar_Summ_ByGrp, 
+	analid=An03_06_Height_Summ_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt, 
+	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
+	debugfl=N);
+
 * Direct log output back to the log window;
 proc printto;
 run; 
@@ -112,4 +173,5 @@ proc json out = "&sasbaseard.\macros\test\output\test_run_operation_&progdtc_nam
 	export testout.ard_2_2;
 	export testout.ard_3_1;
 	export testout.ard_3_2;
+	export testout.ard_4_1;
 run;

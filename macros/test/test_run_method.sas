@@ -35,6 +35,14 @@ options nomlogic nomprint nosymbolgen;
 * Main code
 *******************************************************************************;
 
+* Empty the work library;
+%include 'clear_work.sas';
+
+* Initialize ARD;
+data testout.ard;
+	set testdata.ard_template;
+run;
+
 * Direct log output to a file;
 proc printto log="&logdir.\test_run_method_&progdtc_name..log";
 run; 
@@ -50,7 +58,7 @@ run;
 %run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
 	methid=Mth01_CatVar_Summ_ByGrp, analid=An03_02_AgeGrp_Summ_ByTrt, 
 	analsetid=AnalysisSet_02_SAF, analds=ADSL, analvar=USUBJID, 
-	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, debugfl=N);
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, debugfl=Y);
 
 * Test 3: Summary by race and treatment;
 %run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
@@ -65,13 +73,27 @@ run;
 	analvar=USUBJID, groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc, 
 	debugfl=Y);
 
+/*
 * Test 5: Comparison of age group by treatment;
 %run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
 	methid=Mth03_CatVar_Comp_PChiSq, analid=An03_02_AgeGrp_Comp_ByTrt, 
 	analsetid=AnalysisSet_02_SAF, analds=ADSL, 
 	analvar=USUBJID, groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
 	debugfl=Y);
+*/
+
+* Test 6: Summary of height by treatment;
+%run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
+	methid=Mth02_ContVar_Summ_ByGrp, analid=An03_06_Height_Summ_ByTrt, 
+	analsetid=AnalysisSet_02_SAF, analds=ADSL, analvar=HEIGHTBL, 
+	groupingids=AnlsGrouping_01_Trt, debugfl=Y);
 
 * Direct log output back to the log window;
 proc printto;
 run; 
+
+* Output dataset as JSON;
+proc json out = "&sasbaseard.\macros\test\output\test_run_method_&progdtc_name..json" pretty;
+	export testout.ard;
+run;
+

@@ -66,8 +66,8 @@
 
 		%* Execute this operation;
 		%run_operation(mdlib=&mdlib., datalib=&datalib., 
-			opid=&&opid&iop., methid=&methid., analid=&analid., 
-			analsetid=&analsetid., datasubsetid=&datasubsetid., 
+			opid=&&opid&iop., opseq=&iop., nop=&noperations., methid=&methid., 
+			analid=&analid., analsetid=&analsetid., datasubsetid=&datasubsetid., 
 			groupingids=&groupingids., analds=workds, analvar=&analvar., 
 			ard=&ardlib..ard, debugfl=&debugfl.);
 

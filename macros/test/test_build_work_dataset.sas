@@ -71,6 +71,14 @@ data testout.workds4;
 	set workds;
 run;
 
+* Test 5;
+%build_work_dataset(mdlib=testdata, datalib=testdata, analds=adsl, 
+	analvar=heightbl, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt);
+data testout.workds5;
+	set workds;
+run;
+
 * Direct log output back to the log window;
 proc printto;
 run; 
@@ -81,5 +89,6 @@ proc json out = "&sasbaseard.\macros\test\output\test_build_work_dataset_&progdt
 	export testout.workds2;
 	export testout.workds3;
 	export testout.workds4;
+	export testout.workds5;
 run;
 

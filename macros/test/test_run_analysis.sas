@@ -37,6 +37,9 @@ options nomlogic nomprint nosymbolgen;
 * Main code
 *******************************************************************************;
 
+* Empty the work library;
+%include 'clear_work.sas';
+
 * Initialize ARD;
 data testout.ard;
 	set testdata.ard_template;
@@ -48,20 +51,31 @@ run;
 
 * Test 1: Summary by treatment;
 %run_analysis(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	analid=An01_05_SAF_Summ_ByTrt, debugfl=Y);
+	analid=An01_05_SAF_Summ_ByTrt, debugfl=N);
 
 * Test 2: Summary by age group and treament;
 %run_analysis(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	analid=An03_02_AgeGrp_Summ_ByTrt, debugfl=Y);
+	analid=An03_02_AgeGrp_Summ_ByTrt, debugfl=N);
 
 * Test 3: Summary by race and treament;
 %run_analysis(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	analid=An03_05_Race_Summ_ByTrt, debugfl=Y);
+	analid=An03_05_Race_Summ_ByTrt, debugfl=N);
 
 * Test 4: Summary by SOC and treament;
 %run_analysis(mdlib=testdata, datalib=testdata, ardlib=testout, 
-	analid=An07_09_Soc_Summ_ByTrt, debugfl=Y);
+	analid=An07_09_Soc_Summ_ByTrt, debugfl=N);
+
+* Test 5: Comparison of age group by treatment;
+
+* Test 6: Summary of height by treatment;
+%run_analysis(mdlib=testdata, datalib=testdata, ardlib=testout, 
+	analid=An03_06_Height_Summ_ByTrt, debugfl=Y);
 
 * Direct log output back to the log window;
 proc printto;
 run; 
+
+* Output dataset as JSON;
+proc json out = "&sasbaseard.\macros\test\output\test_run_analysis_&progdtc_name..json" pretty;
+	export testout.ard;
+run;
