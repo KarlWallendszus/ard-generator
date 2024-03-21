@@ -85,32 +85,48 @@
 		%let ngroupings = %eval(&igrouping.-1);
 
 		* Create a dataset for each grouping containing its distinct values;
-		%local groupingid datadriven;
+		%local groupingid resbygroup datadriven;
 		%do igrouping = 1 %to &&ngroupings;
 			%let groupingid = %scan(&groupingids., &igrouping., '|');
 			proc sql;
-				select datadriven into :datadriven
-					from &mdlib..analysisgroupings
-					where id = "&groupingid.";
-				%if &datadriven. = TRUE %then %do;
-					create table groupvalues&igrouping.
-						as select distinct g.id as groupingid,
-								g.group_id as groupid, 
-								g.group_label as grouplabel,
-								d.&groupingid. as groupvalue
-							from &mdlib..analysisgroupings g, &dsin. d
-							where g.id = "&groupingid."
-							order by 1, 2, 4;
+				select resultsByGroup&igrouping. into :resbygroup
+					from &mdlib..analyses
+					where id = "&analid.";
+				%if &resbygroup. = TRUE %then %do;
+				* We want a result for each group;
+					select datadriven into :datadriven
+						from &mdlib..analysisgroupings
+						where id = "&groupingid.";
+					%if &datadriven. = TRUE %then %do;
+						create table groupvalues&igrouping.
+							as select distinct g.id as groupingid,
+									g.group_id as groupid, 
+									g.group_label as grouplabel,
+									d.&groupingid. as groupvalue
+								from &mdlib..analysisgroupings g, &dsin. d
+								where g.id = "&groupingid."
+								order by 1, 2, 4;
+					%end;
+					%else %do;
+						create table groupvalues&igrouping.
+							as select id as groupingid,
+									group_id as groupid, 
+									group_label as grouplabel,
+									group_id as groupvalue
+								from &mdlib..analysisgroupings
+								where id = "&groupingid."
+								order by 1, 2, 4;
+					%end;
 				%end;
 				%else %do;
+				* We want one result for the whole grouping;
 					create table groupvalues&igrouping.
-						as select id as groupingid,
-								group_id as groupid, 
-								group_label as grouplabel,
-								group_id as groupvalue
-							from &mdlib..analysisgroupings
-							where id = "&groupingid."
-							order by 1, 2, 4;
+						as select groupingid&igrouping. as groupingid,
+								'' as groupid, 
+								'' as grouplabel,
+								'' as groupvalue
+							from &mdlib..analyses
+							where id = "&analid.";
 				%end;
 			quit;
 		%end;

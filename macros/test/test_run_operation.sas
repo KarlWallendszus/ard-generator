@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Tests the run_operation macro.
 * @author Karl Wallendszus
 * @created 2023-08-30
@@ -25,6 +25,15 @@ libname testout "&sasbaseard.\macros\test\output" filelockwait=5;
 * Set date/time macro variables;
 %include "&sasbaseard./setprogdt.sas";
 
+* Empty the work library;
+%include 'clear_work.sas';
+
+* Copy relevant formats to work library;
+proc catalog;
+	copy in = testout.formats out = work.formats;
+run;
+quit;
+
 options label dtreset spool;
 *options mlogic mprint symbolgen;
 options nomlogic nomprint nosymbolgen;
@@ -36,12 +45,6 @@ options nomlogic nomprint nosymbolgen;
 *******************************************************************************;
 * Main code
 *******************************************************************************;
-
-* Copy relevant formats to work library;
-proc catalog;
-	copy in = testout.formats out = work.formats;
-run;
-quit;
 
 * Direct log output to a file;
 proc printto log="&logdir.\test_run_operation_&progdtc_name..log";
@@ -162,6 +165,17 @@ run;
 	analds=testdata.workds_trt_heightbl, analvar=HEIGHTBL, ard=testout.ard_4_1,
 	debugfl=N);
 
+* Test 5.1: Comparison of categorical value (age group) by treatment;
+data testout.ard_5_1;
+	set testdata.ard_template;
+run;
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth03_CatVar_Comp_PChiSq_1_pval, methid=Mth03_CatVar_Comp_PChiSq, 
+	analid=An03_02_AgeGrp_Comp_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
+	analds=testdata.workds_trt_agegr, analvar=USUBJID, ard=testout.ard_5_1, 
+	debugfl=N);
+
 * Direct log output back to the log window;
 proc printto;
 run; 
@@ -174,4 +188,5 @@ proc json out = "&sasbaseard.\macros\test\output\test_run_operation_&progdtc_nam
 	export testout.ard_3_1;
 	export testout.ard_3_2;
 	export testout.ard_4_1;
+	export testout.ard_5_1;
 run;

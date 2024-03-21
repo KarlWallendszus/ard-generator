@@ -122,6 +122,11 @@
 			oplabel=&oplabel., groupingids=&groupingids., mode=&mode.,
 			dsin=&analds., analvar=&analvar., dsout=work.ard, debugfl=&debugfl.);
 	%end;
+	%else %if &opid. = Mth03_CatVar_Comp_PChiSq_1_pval %then %do;
+		%op_catvar_comp_pchisq_pval(analid=&analid., methid=&methid., opid=&opid., 
+			groupingids=&groupingids., 
+			dsin=&analds., dsout=work.ard, debugfl=&debugfl.);
+	%end;
 	%else %do;
 		%put WARNING: Operation &opid. is not supported.;
 	%end;
