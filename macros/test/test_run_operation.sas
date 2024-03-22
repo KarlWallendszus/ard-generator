@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 * Tests the run_operation macro.
 * @author Karl Wallendszus
 * @created 2023-08-30
@@ -170,7 +170,22 @@ data testout.ard_5_1;
 	set testdata.ard_template;
 run;
 %run_operation(mdlib=testdata, datalib=testdata,  
-	opid=Mth03_CatVar_Comp_PChiSq_1_pval, methid=Mth03_CatVar_Comp_PChiSq, 
+	opid=Mth03_CatVar_Comp_PChiSq_1_chisq, opseq=1, nop=3, 
+	methid=Mth03_CatVar_Comp_PChiSq, 
+	analid=An03_02_AgeGrp_Comp_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
+	analds=testdata.workds_trt_agegr, analvar=USUBJID, ard=testout.ard_5_1, 
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth03_CatVar_Comp_PChiSq_2_df, opseq=2, nop=3, 
+	methid=Mth03_CatVar_Comp_PChiSq, 
+	analid=An03_02_AgeGrp_Comp_ByTrt, analsetid=AnalysisSet_02_SAF, 
+	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
+	analds=testdata.workds_trt_agegr, analvar=USUBJID, ard=testout.ard_5_1, 
+	debugfl=N);
+%run_operation(mdlib=testdata, datalib=testdata,  
+	opid=Mth03_CatVar_Comp_PChiSq_3_pval, opseq=3, nop=3, 
+	methid=Mth03_CatVar_Comp_PChiSq, 
 	analid=An03_02_AgeGrp_Comp_ByTrt, analsetid=AnalysisSet_02_SAF, 
 	groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
 	analds=testdata.workds_trt_agegr, analvar=USUBJID, ard=testout.ard_5_1, 

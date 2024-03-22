@@ -66,6 +66,8 @@ run;
 	analid=An07_09_Soc_Summ_ByTrt, debugfl=N);
 
 * Test 5: Comparison of age group by treatment;
+%run_analysis(mdlib=testdata, datalib=testdata, ardlib=testout, 
+	analid=An03_02_AgeGrp_Comp_ByTrt, debugfl=N);
 
 * Test 6: Summary of height by treatment;
 %run_analysis(mdlib=testdata, datalib=testdata, ardlib=testout, 

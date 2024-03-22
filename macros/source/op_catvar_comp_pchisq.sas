@@ -4,35 +4,20 @@
 * argument:
 *
 * oplabel
-* N			Operation ID:	Mth02_ContVar_Summ_ByGrp_1_n
-* 			Operation name:	Count of non-missing values
+* chisq		Operation ID:	Mth03_CatVar_Comp_PChiSq_1_chisq
+* 			Operation name:	Chi-squared
 *
-* Mean		Operation ID:	Mth02_ContVar_Summ_ByGrp_2_Mean
-* 			Operation name:	Mean
+* df		Operation ID:	Mth03_CatVar_Comp_PChiSq_2_df
+* 			Operation name:	Degrees of freedom
 *
-* SD		Operation ID:	Mth02_ContVar_Summ_ByGrp_3_SD
-* 			Operation name:	Standard deviation
+* p-value	Operation ID:	Mth03_CatVar_Comp_PChiSq_3_pval
+* 			Operation name:	P-value
 *
-* Median	Operation ID:	Mth02_ContVar_Summ_ByGrp_4_Median
-* 			Operation name:	Median
-*
-* Q1		Operation ID:	Mth02_ContVar_Summ_ByGrp_5_Q1
-* 			Operation name:	First quartile
-*
-* Q3		Operation ID:	Mth02_ContVar_Summ_ByGrp_6_Q3
-* 			Operation name:	Third quartile
-*
-* Min		Operation ID:	Mth02_ContVar_Summ_ByGrp_7_Min
-* 			Operation name:	Minimum
-*
-* Max		Operation ID:	Mth02_ContVar_Summ_ByGrp_8_Max
-* 			Operation name:	Maximum
-*
-* The same PROC MEANS call is used for all of these operations; the difference
+* The same PROC FREQ call is used for all of these operations; the difference
 * is just which statistic is retrieved into the ARD. The mode argument 
 * determines whether or not the procedure call is executed anew for the current
 * operation. The mode argument can take the following values:
-*   GEN	Results are generated anew by PROC MEANS (default)
+*   GEN	Results are generated anew by PROC FREQ (default)
 *	RET	Results are simply retrieved from the raw results dataset which is 
 *		assumed to already exist.
 *	DEL	Results are retrieved from the raw results dataset which is then deleted.
@@ -48,56 +33,80 @@
 * @param groupingids	List of pipe-delimited data grouping IDs.
 * @param mode			Mode: GEN, RET, DEL (see above)
 * @param dsin			Input analysis dataset.
-* @param analvar		Analysis variable.
 * @param dsout			Output analysis results dataset.
 * @param debugfl		Debug flag (Y/N).
 ********************************************************************************
 */
-%macro op_contvar_summ_bygrp ( analid=, methid=, opid=, oplabel=, groupingids=, 
-	mode=GEN, dsin=, analvar=, dsout=, debugfl=N );
+%macro op_catvar_comp_pchisq ( analid=, methid=, opid=, oplabel=,
+	groupingids=, mode=GEN, dsin=, dsout=, debugfl=N );
 
-	%* Parse the groupings;
-	%local igrouping ngroupings groupingid groupinglist;
-	%let groupinglist = %str();
+	%* Build the tables request;
+	%local igrouping ngroupings groupingid tabreq;
 	%let igrouping = 1;
 	%do %while (%scan(&groupingids., &igrouping., '|') ne );
 		%let groupingid = %scan(&groupingids., &igrouping., '|');
 		%local groupingid&igrouping.;
 		%let groupingid&igrouping. = &groupingid.;
-		%let groupinglist = &groupinglist. &groupingid.;
+		%if &igrouping. eq 1 %then %do;
+			%let tabreq = &groupingid.;
+		%end;
+		%else %do;
+			%let tabreq = &tabreq. * &groupingid.;
+		%end;
 		%let igrouping = %eval(&igrouping.+1);
 	%end;
 	%let ngroupings = %eval(&igrouping.-1);
 
-	%* Calculate statistics;
+	%* Run the analysis;
 	%if &mode. = GEN %then %do;
-		proc sort data = &dsin.;
-			by &groupinglist.;
-		proc means data = &dsin. n mean stddev median q1 q3 min max;
-			var &analvar.;
-			output out=rawres 
-				n=n mean=mean stddev=sd median=median q1=q1 q3=q3 min=min max=max;
-			by &groupinglist.;
+		%if %sysfunc(exist(rawres)) %then %do;
+			proc datasets library=work;
+			delete rawres;
+			run;
+			quit;
+		%end;
+		proc freq data = &dsin.;
+			tables &tabreq. / chisq;
+			output out = rawres chisq pchi;
 		run;
 	%end;
 
+	* Check that there is only 1 row in the outline ARD and the raw results;
+	%local nobs_ard nobs_raw;
+	data _null_;
+		set &dsout. nobs = nobs;
+		call symput('nobs_ard', nobs);
+	run;
+	data _null_;
+		set rawres nobs = nobs;
+		call symput('nobs_raw', nobs);
+	run;
+	%if &nobs_ard. ^= 1 %then 
+		%put ERROR: &nobs_ard. rows in outline ARD (expecting 1);
+	%if &nobs_raw. ^= 1 %then 
+		%put ERROR: &nobs_raw. rows of raw results (expecting 1);
+
+	%* Set the result column to use;
+	%local rescol;
+	%if %bquote(&oplabel.) = chisq %then %let rescol = _PCHI_;
+	%else %if %bquote(&oplabel.) = df %then %let rescol = DF_PCHI;
+	%else %if %bquote(&oplabel.) = %str(p-value) %then %let rescol = P_PCHI;
+
 	%* Update the ARD from the raw results dataset;
 	proc sql;
-		update &dsout. as a
+		update &dsout.
 			set rawValue = ( 
-				select r.&oplabel.
-					from rawres as r
-					where
-					%do igrouping = 1 %to &&ngroupings;
-						%if &igrouping. gt 1 %then %do;
-						and 
-						%end;
-						a.resultGroup&igrouping._groupvalue = r.&&groupingid&igrouping.
-					%end;
-					)
-				where a.analysisId = "&analid." and a.methodId = "&methid." and
-					a.operationId = "&opid.";
+				select &rescol. 
+					from rawres );
 	quit;
+
+	/*
+	%* Convert any missing results to zero;
+	data &dsout.;
+		set &dsout.;
+		if rawValue = . then rawValue = 0;
+	run;
+	*/
 
 	* Tidy up unless in debug mode;
 	%if &debugfl. = N %then %do;
@@ -109,6 +118,6 @@
 		%end;
 	%end;
 
-%mend op_contvar_summ_bygrp;
+%mend op_catvar_comp_pchisq;
 
 *******************************************************************************;

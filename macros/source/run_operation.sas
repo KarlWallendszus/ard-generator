@@ -122,9 +122,17 @@
 			oplabel=&oplabel., groupingids=&groupingids., mode=&mode.,
 			dsin=&analds., analvar=&analvar., dsout=work.ard, debugfl=&debugfl.);
 	%end;
-	%else %if &opid. = Mth03_CatVar_Comp_PChiSq_1_pval %then %do;
-		%op_catvar_comp_pchisq_pval(analid=&analid., methid=&methid., opid=&opid., 
-			groupingids=&groupingids., 
+	%else %if &opid. in 
+				Mth03_CatVar_Comp_PChiSq_1_chisq 
+				Mth03_CatVar_Comp_PChiSq_2_df 
+				Mth03_CatVar_Comp_PChiSq_3_pval 
+			%then %do;
+		%local mode;
+		%if &opseq. = 1 %then %let mode = GEN;
+		%else %if &opseq. = &nop. %then %let mode = DEL;
+		%else %let mode = RET;
+		%op_catvar_comp_pchisq(analid=&analid., methid=&methid., opid=&opid., 
+			oplabel=&oplabel., groupingids=&groupingids., mode=&mode.,
 			dsin=&analds., dsout=work.ard, debugfl=&debugfl.);
 	%end;
 	%else %do;

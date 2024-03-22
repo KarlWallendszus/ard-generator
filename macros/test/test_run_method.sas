@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Tests the run_method macro.
 * @author Karl Wallendszus
 * @created 2023-08-29
@@ -73,14 +73,12 @@ run;
 	analvar=USUBJID, groupingids=AnlsGrouping_01_Trt|AnlsGrouping_06_Soc, 
 	debugfl=Y);
 
-/*
 * Test 5: Comparison of age group by treatment;
 %run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
 	methid=Mth03_CatVar_Comp_PChiSq, analid=An03_02_AgeGrp_Comp_ByTrt, 
 	analsetid=AnalysisSet_02_SAF, analds=ADSL, 
 	analvar=USUBJID, groupingids=AnlsGrouping_01_Trt|AnlsGrouping_03_AgeGp, 
 	debugfl=Y);
-*/
 
 * Test 6: Summary of height by treatment;
 %run_method(mdlib=testdata, datalib=testdata, ardlib=testout, 
