@@ -108,7 +108,7 @@
 		%let rc = %sysfunc(close(&dsid.));
 
 		* Build the clause string;
-		%if &condcomp. = IN %then %do;
+		%if %bquote(&condcomp.) = %str(IN) %then %do;
 			%let valstr = (;
 			%let ival = 1;
 			%do %while(%scan(&condval., &ival., '|') ne );

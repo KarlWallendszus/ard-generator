@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Tests the append_addcols macro.
 * @author Karl Wallendszus
 * @created 2023-09-06
@@ -17,7 +17,9 @@
 x "cd &workdir.";
 
 * Set library references;
+libname testdata clear;
 libname testdata "&sasbaseard.\macros\test\data" filelockwait=5;
+libname testout clear;
 libname testout "&sasbaseard.\macros\test\output" filelockwait=5;
 
 * Set date/time macro variables;

@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 * Imports SAS V5 transport files and converts them to SAS datasets.
 * @author Karl Wallendszus
 * @created 2023-07-21
@@ -36,8 +36,9 @@ options nomlogic nomprint nosymbolgen;
 * @param dir		Name of directory to search.
 * @param ext		File extension to search for.
 * @param dsout		Output dataset.
+* @param direrrfl	Whether to raise error on failing to open directory: Y/N.
 */
-%macro list_files ( dir, ext, dsout );
+%macro list_files ( dir, ext, dsout, direrrfl=Y );
 
 	* Declare macro variables;
 	%local filrf rc did memcnt name i;
@@ -48,7 +49,9 @@ options nomlogic nomprint nosymbolgen;
 
 	* Check that the directory can be opened;
  	%if &did. eq 0 %then %do;
-		%put ERROR: Directory &dir. cannot be opened or does not exist;
+		%if &direrrfl. = Y %then %do;
+			%put ERROR: Directory &dir. cannot be opened or does not exist;
+		%end;
 		%return;
 	%end;
 
@@ -76,7 +79,7 @@ options nomlogic nomprint nosymbolgen;
       	%end;
       	%else %if %index(&name., .) > 0 %then %do;
 			* No extension so assume it is a subdirectory;
-        	%list_files(&dir.\&name., &ext.);
+        	%list_files(&dir.\&name., &ext., direrrfl=N);
       	%end;
 
 	%end; /* file loop */
